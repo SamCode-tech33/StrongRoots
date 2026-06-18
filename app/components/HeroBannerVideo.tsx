@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 interface HeroBannerVideoProps {
-  /** Poster/banner image shown immediately on load */
   imageSrc: string;
-  /** Video that crossfades in once it's ready to play */
   videoSrc: string;
   alt?: string;
   className?: string;
-  /** Crossfade duration in ms */
   fadeDurationMs?: number;
 }
 
@@ -26,16 +24,12 @@ export default function HeroBannerVideo({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
     const markReady = () => {
-      // play() can reject if the browser blocks autoplay; that's fine,
-      // the fade only triggers once playback has actually begun.
       video
         .play()
         .then(() => setVideoReady(true))
-        .catch(() => setVideoReady(true)); // still reveal a paused frame
+        .catch(() => setVideoReady(true));
     };
-
     if (video.readyState >= 3) {
       markReady();
     } else {
@@ -46,18 +40,16 @@ export default function HeroBannerVideo({
 
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Banner image: the starting frame */}
-      <img
+      <Image
         src={imageSrc}
         alt={alt}
-        className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out rounded-lg"
+        fill
+        className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out"
         style={{
           opacity: videoReady ? 0 : 1,
           transitionDuration: `${fadeDurationMs}ms`,
         }}
       />
-
-      {/* Video: fades in on top, replacing the image */}
       <video
         ref={videoRef}
         src={videoSrc}
@@ -65,7 +57,7 @@ export default function HeroBannerVideo({
         loop
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out rounded-lg"
+        className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out"
         style={{
           opacity: videoReady ? 1 : 0,
           transitionDuration: `${fadeDurationMs}ms`,
